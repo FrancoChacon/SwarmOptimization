@@ -71,11 +71,11 @@ function [B,Rep,miny]=FireFly(TC)
         
         
          //Evaluacion
-        [FE,miny,maxy,B,PL,FEL]=EvaluationPSO(P,miny,maxy,B,PL,FEL);
-        
+        [FE,miny,maxy,B,PL,FEL]=EvaluationFireFly(P,miny,maxy,B,PL,FEL);
+        //[FE,miny,maxy,B,PL,FEL]=EvaluationPSO(P,miny,maxy,B,PL,FEL);
         
         //Actualizacón de posición
-        [P,V]=UpdatePSO(P,V);
+       // [P,V]=UpdatePSO(P,V);
       
         
         Rep=[Rep; miny];
@@ -87,75 +87,59 @@ function [B,Rep,miny]=FireFly(TC)
     
 endfunction
 
-
-function [FE,miny,maxy,B,PL,FEL]=EvaluationPSO(P,miny,maxy,B,PL,FEL)
-    
-    [TI, D] = size(P);FE=zeros(1,TI);
-    
-    for k=1:TI
-        for d=1:D
-            X(d)=P(k,d);
-         end
-           [y, MR] = TestFunction(X,2);
-         
-         if y>maxy then
-             maxy=y;
-            //   Ix=X; //best solution found (maximization))
-         end
-         
-         if y<miny then
-             miny=y;
-             B=X; //best solution found (minimization)
-         end
-         
-         //Minimization
-        FE(k) = 1 - normalization(y,miny,maxy);
-        
-        if FE(k)>FEL(k) then
-            
-            FEL(k)=FE(k);
-            for d=1:D
-                    PL(k,d) = X(d);
-            end
-        end
-            
-    end
-    
-    
+function BreakPoint(HeaderName)
+    disp(HeaderName)
 endfunction
-
 
 function [FE,miny,maxy,B,PL,FEL] = EvaluationFireFly(P,miny,maxy,B,PL,FEL)
     
     Alfa =1
     Gamma = 1
     Beta = 1
-    
+
     [TI, D] = size(P);
     FE=zeros(1,TI);
+    disp(D)
+    BreakPoint("H1")
 
-  
-    for i = 1:TI
-        for j = 1:D
-            if FE(i) > FE(j) then
-                r= 0
-                for d = 1:D 
-                    r= r + (P(i, d) - P(j, d))*2
-                end
-                r=P(r)
-                for d = 1:D 
-                    X(d)= X(d) + Beta * exp((Gama*r)^2)*(P(j, d) - P(i, d)) + Alfa(o, 1) 
-                end
-            end
-            FE(i) =  TestFunction(X,1);
-            
+for i = 1:TI
+    BreakPoint("H2")
+    for j = 1:D
+        if FE(i) >= FE(j) then
+            BreakPoint("H2.1")
+            r= 0
+            disp(P)
+            disp("P Size")
+            disp(size(P))
             for d = 1:D 
-                P(i, d)= X(d)
+                printf('I = %d, J= %d, D = %d\n',i,j,d);
+                r= r + (P(i, d) - P(j, d))*2
+            end
+            BreakPoint("Success")
+            disp(r)
+
+            if r == 0 then
+                r=P(1)
+            else
+                r=P(1)
+            end 
+
+
+            for d = 1:D 
+                BreakPoint("H3")
+                X(d)= X(d) + Beta * exp((Gama*r)^2)*(P(j, d) - P(i, d)) + Alfa(o, 1) 
             end
         end
+        // FE(i) =  TestFunction(X,1);
+        BreakPoint("H4")
+
+        for d = 1:D 
+            P(i, d)= X(d)
+        end
     end
-    Ix= sort(FE)
-    for d = 1:D 
+end
+Ix= sort(FE)
+for d = 1:D 
         B(d)= P(Ix(1), d)
     end
 
