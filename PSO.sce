@@ -53,7 +53,7 @@ function [B,Rep,miny]=PSO(TC)
     
     
     //Poblacion inicial
-    Ti=100; // Total de individuos
+     Ti=100; // Total de individuos
      P=Create(100,10, MR);
      B=P(1,:);  //Mejor solución global
      PL=P;   //Mejor posición local
@@ -125,9 +125,10 @@ function [FE,miny,maxy,B,PL,FEL]=EvaluationPSO(P,miny,maxy,B,PL,FEL)
          
          //Minimization
         FE(k) = 1 - normalization(y,miny,maxy);
-        
+    
         if FE(k)>FEL(k) then
-            
+            disp(FE)
+            pause()
             FEL(k)=FE(k);
             for d=1:D
                     PL(k,d) = X(d);

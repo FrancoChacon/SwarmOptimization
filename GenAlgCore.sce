@@ -351,6 +351,7 @@ endfunction
 
 function [y, MR] = TestFunction(X,option)
     
+  
 MR=zeros(1,2);
 
 select option
@@ -413,10 +414,7 @@ end
         
         case 1 then
         y = GenSphere(X);        
-        
-    case 11 then
-        y = FireFly(X);
-        
+           
         case 2 then
         y = GenSchwefel(X);
         
@@ -475,14 +473,25 @@ endfunction
 
 function [FE,miny,maxy,Ix]=Evaluation(P,miny,maxy,Ix)
     
-    [TI, TR] = size(P);FE=zeros(1,TI);
+    [TI, TR] = size(P);
+
+    
+    FE=zeros(1,TI);
     
     for k=1:TI
         for r=1:TR
             X(r)=P(k,r);
          end
-           [y, MR] = TestFunction(X,2);
          
+         [y, MR] = TestFunction(X,1);
+     
+         FE(k)=normalization(y,miny,maxy);
+         
+         disp(X)
+            disp(y)
+               disp(FE(k))
+         disp(miny)
+         pause()
          if y>maxy then
              maxy=y;
             //   Ix=X; //best solution found (maximization))
@@ -513,19 +522,32 @@ function [Ix,Rep,miny]=RandomS(N)
     Rep=[];
     Ix=rand(1,10);
     
+ 
     for cycles=1:N
         
-         P=Create(100,10,MR);
-         
-        [FE,miny,maxy,Ix]=Evaluation(P,miny,maxy,Ix);
+         P=Create(10,10,MR);
         
+        [FE,miny,maxy,Ix]=Evaluation(P,miny,maxy,Ix);
+       // di
         Rep=[Rep; miny];
+       // disp(Rep)
         
     end
     
     
 endfunction
 
+function [XN] = ShuffleRows(X) 
+    Random = randperm(size(X,1));
+    
+   XN = X(Random,:);
+
+endfunction
+
+function Rand = randperm(n)
+   Rand = grand(1, "prm", (1:n)')' ; 
+   // v = grand(1, "prm", (1:n)')', v(1:k)
+endfunction
 
 
 //***********************************************************************
@@ -541,8 +563,12 @@ function [Report,Table,Rprom] = ReportRandomS()
     
     for exper=1:10
         
-        tic();[Ix,Rep,miny]=RandomS(100);a=toc();
+        tic();[Ix,Rep,miny]=RandomS(10);
+        a=toc();
         tprom = tprom + a;
+          //  disp(size(Ix))
+       //disp(size(Ixprom))
+
         Ixprom=Ixprom+Ix';
         Report=[Report; Rep'];
     end
@@ -555,7 +581,7 @@ function [Report,Table,Rprom] = ReportRandomS()
     
     //Mean and standard deviation
     Rprom=mean(Report,'r');
-    Table = [tprom Rprom(100) Ixprom];
+    Table = [tprom Rprom(10) Ixprom];
     
 //    clf
 //    plot(Report'); 
@@ -564,3 +590,23 @@ function [Report,Table,Rprom] = ReportRandomS()
 
 endfunction
 
+function  [Index,Values] = Sort(IsAsending,Data)
+    
+     [Row, Col] = size(Data);
+     
+     IndexArray = zeros(Row,Col)
+     OrderedArray = zeros(Row,Col)
+     
+     for i = 1:Row
+         for j = 1:Col
+             
+             
+             
+         end
+     end
+    
+endfunction
+
+function BreakPoint(HeaderName)
+    disp(HeaderName)
+endfunction

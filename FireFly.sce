@@ -1,186 +1,170 @@
 /*
-FireFly ALGORITHM
+FireFly Algorithm
 
     Functions Aviliable:
+    
         ReportFireFly
+        
         FireFly
+        PreEvaluateFireFly
         EvaluateFireFly
-        UpdateFireFly
-
 */
 
 
 
 
-function [Report,Table,RProm] = ReportFireFly()
-    
+function [Report,Table,RProm] = ReportFireFly(TotalOfElements)
+
     Table=[];
     tprom=0;
     Report=[];
-    Ixprom=zeros(1,10);
-    for exper=1:10
-        
-        tic();[B,Rep,miny]=FireFly(100);
-        
+
+    TC = TotalOfElements;
+
+    TotalExper = 10;
+    Dimensions = 10;
+
+    Ixprom=zeros(1,TC);
+
+    printf("Report FireFly Initialized\n\n")
+    printf("Total of Elements =%d \n",TC)
+    printf("Dimensions size %d \n",Dimensions)
+
+    for exper=1:TotalExper
+
+        printf("Iteration #%d of %d ",exper,TotalExper)
+
+        tic();
+        [Ix,Rep,miny]=FireFly(TC,Dimensions);
+
         a=toc();
+
+        printf("- %f Seg\n",a)
+
         tprom = tprom + a;
-        Bprom=Ixprom+B';
+        Ixprom=Ixprom+Ix';
+
         Report=[Report; Rep'];
+
     end
-    
+
     tprom = tprom / 10;
-    
-    
-    //pause,
-    //Execution time
-    
     //Mean and standard deviation
     RProm=mean(Report,'r');
-    Table = [tprom RProm(100) Ixprom];
-    
-//    clf
-//    plot(Report'); 
-//    plot(RProm','*k');
-    
+    Table = [tprom RProm(TC) Ixprom];
+
+    printf("\n")
 
 endfunction
 
 
 
-function [B,Rep,miny]=FireFly(TC)
-    
+function [Ix,Rep,miny]=FireFly(TC,Dim)
+
+    //Poblacion inicial
+    Ti=TC;   // Total of Elements
+    D = Dim; //Total of Dimensions
+
+    //Variable Definitions
     miny=100000000;
     maxy=-100000000;
-   
-    MR=zeros(10,2);
-    MR(:,1)=10//LUB(1);
-    MR(:,2)=-1//LUB(2);
     Rep=[];
-    
-    
-    //Poblacion inicial
-     Ti=100; // Total de individuos
-     P=Create(100,10, MR);
-     B=P(1,:);  //Mejor solución global
-     PL=P;   //Mejor posición local
-     V=zeros(Ti,10); //Velocidad
-     FEL=zeros(Ti,1); //Mejor evaluación local
-     
-     
+    FE=zeros(Ti,1);
+    Ix=rand(Ti,1);
+
+    //GenSphere
+    MR=zeros(10,2);
+    MR(:,1)=-5.12;
+    MR(:,2)=5.12;
+    MRR = MR
+
     for cycles=1:TC
-        
-        
-         //Evaluacion
-        [FE,miny,maxy,B,PL,FEL]=EvaluationFireFly(P,miny,maxy,B,PL,FEL);
-        //[FE,miny,maxy,B,PL,FEL]=EvaluationPSO(P,miny,maxy,B,PL,FEL);
-        
-        //Actualizacón de posición
-       // [P,V]=UpdatePSO(P,V);
-      
-        
+
+        P=Create(TC,10,MR);
+    
+        [FE] = PreEvaluationFireFly(P,miny,maxy,FE);
+
+        [FE,miny,maxy,Ix]=EvaluationFireFly(P,miny,maxy,Ix,FE);  
+       
         Rep=[Rep; miny];
-    
-    
-        disp(miny)        
+
     end
-    
-    
+
+
 endfunction
 
-function BreakPoint(HeaderName)
-    disp(HeaderName)
-endfunction
 
-function [FE,miny,maxy,B,PL,FEL] = EvaluationFireFly(P,miny,maxy,B,PL,FEL)
-    
+
+
+function [FE,miny,maxy,Ix,PL,FEL] = EvaluationFireFly(P,miny,maxy,Ix,FE)
+
     Alfa =1
     Gamma = 1
     Beta = 1
 
     [TI, D] = size(P);
-    FE=zeros(1,TI);
-    disp(D)
-    BreakPoint("H1")
+    X = zeros(1,D);
 
-for i = 1:TI
-    BreakPoint("H2")
-    for j = 1:D
-        if FE(i) >= FE(j) then
-            BreakPoint("H2.1")
-            r= 0
-            disp(P)
-            disp("P Size")
-            disp(size(P))
-            for d = 1:D 
-                printf('I = %d, J= %d, D = %d\n',i,j,d);
-                r= r + (P(i, d) - P(j, d))*2
-            end
-            BreakPoint("Success")
-            disp(r)
-
-            if r == 0 then
-                r=P(1)
-            else
-                r=P(1)
-            end 
-
+    for i = 1:TI
+        for j = 1:i
 
             for d = 1:D 
-                BreakPoint("H3")
-                X(d)= X(d) + Beta * exp((Gama*r)^2)*(P(j, d) - P(i, d)) + Alfa(o, 1) 
+                X(d)=  P(i, d) 
+
+            end
+
+            if FE(i) > FE(j) then
+                r = 0
+                for d = 1:D 
+                    r = r + (P(i, d) - P(j, d))*2
+                end
+                r = sqrt(r) 
+                for d = 1:D 
+
+                    X(d)= X(d) + Beta * exp((Gamma*r)^2)*(P(j, d) - P(i, d)) + Alfa*rand(1,"normal")
+
+                end
+            end
+
+            [y, MR] = TestFunction(X,1);
+
+            FE(i)=normalization(y,miny,maxy);
+
+            if y>maxy then
+                maxy=y;
+            end
+
+            if y<miny then           
+                miny=y;
+            end
+            for d = 1:D 
+                P(i, d) = X(d)   
             end
         end
-        // FE(i) =  TestFunction(X,1);
-        BreakPoint("H4")
-
-        for d = 1:D 
-            P(i, d)= X(d)
-        end
-    end
-end
-Ix= sort(FE)
-for d = 1:D 
-        B(d)= P(Ix(1), d)
     end
 
+    [B ,k]=gsort(FE)
+    IndexSortx= k
+
+    for d = 1:D 
+
+        Ix(d)= P(IndexSortx(1), d)
+
+    end
 
 endfunction
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function FireFlyAlgInitialization()
-    Ti = 1;
-    D = 1;
-
-    P= [];
-    FE = [];
-    X= [];
-    Ri = [];
-    for i = 1:Ti 
-        for d = 1:D 
-            P(i, d) = Ri(d, UB(d), LB(d)); //Duda
-            X(d) = P(i, d);
+function [FE] = PreEvaluationFireFly(P,miny,maxy,FE)
+    
+    [Ti,D] = size(P);
+    for i = 1:Ti
+        for j = 1:D
+            X(j) = P(i,j);
         end
-        FE(i) = evaluation(X); //Duda
 
+        [y, MRR] = TestFunction(X,1);
+        FE(i)=normalization(y,miny,maxy);
     end
-
 endfunction
 
