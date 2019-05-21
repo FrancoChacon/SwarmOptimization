@@ -1,16 +1,11 @@
 /*
 Bat Algorithm
-
     Functions Aviliable:
-    
         ReportBat
-        
         Bat
         PreEvaluateBat
         EvaluateBat
 */
-
-
 
 
 function [Report,Table,RProm] = ReportBat(TotalOfElements)
@@ -86,7 +81,7 @@ function [Ix,Rep,miny]=Bat(TC,Dim)
 
         [FE,f,r,A] = PreEvaluationBat(P,miny,maxy)
 
-        [FE,miny,maxy,Ix]=EvaluationBat(P,miny,maxy,Ix,f,r,A);  
+        [FE,miny,maxy,Ix,f,r,A]=EvaluationBat(P,miny,maxy,Ix,f,r,A,FE);  
        
         Rep=[Rep; miny];
 
@@ -98,102 +93,109 @@ endfunction
 
 
 
-function [FE,miny,maxy,Ix]=EvaluationBat(P,miny,maxy,Ix,f,r,A); 
+function [FE,miny,maxy,Ix,f,r,A]=EvaluationBat(P,miny,maxy,Ix,f,r,A,FE)
+
+
+    [TI, D] = size(P);
+    X = zeros(1,D);
+    fex = zeros(TI,D);
+    feb = zeros(TI,D);
 
     Alfa =1
     Gamma = 1
     Beta = 1
 
-    [TI, D] = size(P);
-    X = zeros(1,D);
+    fmax = [1,D]
+    fmin = [1,D]
+
+    fmax(1:D) = 100;
+    fmin(1:D) = 0;
 
 
     //{Block: Generate new solutions adjusting frequency}; 
-   // GenerateSolutionsByFreq(P);
-    
-    
-    for i = 1:Ti 
-        if U() > r(i) 
-            //{Block: Select the best solution and generate a local one}; 
-            //SelectlAndGenerateLocal();
-        end
-        //{Generate and evaluate a new solution};
-        fex = evaluation(X); 
-        feb = evaluation(B);
-        for i = 1:Ti 
-            if U() < A(i) and fex < feb 
-                FEB = FE(i); 
+    [FE,B,X,f,maxy,miny,P] = GenerateSolutionsByFreq(P,miny,maxy,fmax,fmin,f)
+for i = 1:Ti 
+    if rand(1,1,"uniform") > r(i) 
+        //{Block: Select the best solution and generate a local one}; 
+        [B,P] = SelectlAndGenerateLocal(FE,P)
+    end
+    //{Generate and evaluate a new solution};
+    [y, MR] = TestFunction(X,1);
+    fex(i)=normalization(y,miny,maxy);
 
+    [y, MR] = TestFunction(B,1);
+    feb(i)=normalization(y,miny,maxy);
+
+    for i = 1:Ti 
+        if rand(1,1,"uniform") < A(i) then 
+            if  fex < feb  
+                feb = FE(i); 
                 B = X;
-                A(i) = α·A(i); 
-                r(i) = r(i)(1−exp−γ·cycle)
+                A(i) = alfa * A(i); 
+                r(i) = r(i)*(1 - exp(-Gamma * i))
             end
         end
-        //{Rank the bats and select the best one}; 
-        (pos,val) = maxp(FE); 
-        for d = 1:D do
-
-            B(d) = P(posmax,d)
-        end
-
-
-
-
-    endfunction
-
+    end
+  
+    //{Rank the bats and select the best one}; 
+    [pos,val] = maxp(FE); 
+    for d = 1:D 
+        Ix(d) = P(pos,d)
+    
+    end
+end
+endfunction
 
 
-function [FE,B] = GenerateSolutionsByFreq(P)
+function [FE,B,X,f,maxy,miny,P] = GenerateSolutionsByFreq(P,miny,maxy,fmax,fmin,f)
     [TI, D] = size(P)
     X = zeros(1,D)
+    V = zeros(TI,D)
+    B = zeros(1,D)
 
     for i = 1:Ti
         for d = 1:D 
             X(d) = P(i,d) 
         end 
-
-
         [y, MR] = TestFunction(X,1);
-        FE(i)=normalization(y,miny,maxy);
+        FE(i) = normalization(y,miny,maxy);
 
-        
-        if FE(i) > maxy 
-            maxy = FE(i) 
-            B = X
+        if y > maxy 
+            maxy = y 
         end
-        if FE(i) < miny 
-            miny = FE(i); 
+        if y < miny 
+                B = X
+            miny = y; 
         end
     end 
-    
-    //Duda NN
     NN = Ti;
     //{Generate a new solution by ﬂying randomly}
     for i = 1:NN 
         for d = 1:D 
-              f(i,d) = fmin(d) + U()·(fmax(d)−fmin(d)); DUDA
-            //f(i,d) = fmin(d) + U()·(fmax(d)−fmin(d)); DUDA
-            V (i,d) = V (i,d) + (P(i,d)−B(d));
+            f(i,d) = fmin(d) + rand(1,1,"uniform")*(fmax(d)-fmin(d));          
+            V (i,d) = V (i,d) + (P(i,d)-B(d));
             P(i,d) = P(i,d) + V (i,d); 
         end
     end
 
-
 endfunction
 
 
-function SelectlAndGenerateLocal()
-    (val,pos) = maxp(FE))
+function [B,P] = SelectlAndGenerateLocal(FE,P)
+
+    [pos,val] = maxp(FE)
+    [TI, D] = size(P)
     for d = 1:D 
         B(d) = P(pos,d); 
     end 
     Ap = 0;
     for i = 1:Ti  
         Ap = Ap + A(i);
-    end Ap = Ap/Ti; 
+    end
+     Ap = Ap/Ti; 
     for i = 1:Ti 
-        for d = 1,D  
-            P(i,d) = P(i,d) + Ap ·Un() 
+        for d = 1:D  
+            P(i,d) = P(i,d) + Ap * rand(1,1,"uniform") 
         end
     end
 
@@ -204,7 +206,7 @@ function [FE,f,r,A] = PreEvaluationBat(P,miny,maxy)
     
     [Ti,D] = size(P);
        //Bat Alg Variables
-    f=zeros(Ti,1);
+    f=zeros(Ti,D);
     r=zeros(Ti,1);
     A=zeros(Ti,1);   
     

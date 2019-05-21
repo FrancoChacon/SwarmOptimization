@@ -1,19 +1,19 @@
 /*
-FireFly Algorithm
+Bat Algorithm
 
     Functions Aviliable:
     
-        ReportFireFly
+        ReportBat
         
-        FireFly
-        PreEvaluateFireFly
-        EvaluateFireFly
+        Bat
+        PreEvaluateBat
+        EvaluateBat
 */
 
 
 
 
-function [Report,Table,RProm] = ReportFireFly(TotalOfElements)
+function [Report,Table,RProm] = ReportBat(TotalOfElements)
 
     Table=[];
     tprom=0;
@@ -26,7 +26,7 @@ function [Report,Table,RProm] = ReportFireFly(TotalOfElements)
 
     Ixprom=zeros(1,TC);
 
-    printf("Report FireFly Initialized\n\n")
+    printf("Report Bat Initialized\n\n")
     printf("Total of Elements =%d \n",TC)
     printf("Dimensions size %d \n",Dimensions)
 
@@ -35,7 +35,7 @@ function [Report,Table,RProm] = ReportFireFly(TotalOfElements)
         printf("Iteration #%d of %d ",exper,TotalExper)
 
         tic();
-        [Ix,Rep,miny]=FireFly(TC,Dimensions);
+        [Ix,Rep,miny]=Bat(TC,Dimensions);
 
         a=toc();
 
@@ -59,7 +59,7 @@ endfunction
 
 
 
-function [Ix,Rep,miny]=FireFly(TC,Dim)
+function [Ix,Rep,miny]=Bat(TC,Dim)
 
     //Poblacion inicial
     Ti=TC;   // Total of Elements
@@ -82,9 +82,9 @@ function [Ix,Rep,miny]=FireFly(TC,Dim)
 
         P=Create(TC,10,MR);
     
-        [FE] = PreEvaluationFireFly(P,miny,maxy,FE);
+        [FE] = PreEvaluationBat(P,miny,maxy,FE);
 
-        [FE,miny,maxy,Ix]=EvaluationFireFly(P,miny,maxy,Ix,FE);  
+        [FE,miny,maxy,Ix]=EvaluationBat(P,miny,maxy,Ix,FE);  
        
         Rep=[Rep; miny];
 
@@ -96,7 +96,7 @@ endfunction
 
 
 
-function [FE,miny,maxy,Ix,PL,FEL] = EvaluationFireFly(P,miny,maxy,Ix,FE)
+function [FE,miny,maxy,Ix,PL,FEL] = EvaluationBat(P,miny,maxy,Ix,FE)
 
     Alfa =1
     Gamma = 1
@@ -136,7 +136,6 @@ function [FE,miny,maxy,Ix,PL,FEL] = EvaluationFireFly(P,miny,maxy,Ix,FE)
 
             if y<miny then           
                 miny=y;
-                
             end
             for d = 1:D 
                 P(i, d) = X(d)   
@@ -156,7 +155,7 @@ function [FE,miny,maxy,Ix,PL,FEL] = EvaluationFireFly(P,miny,maxy,Ix,FE)
 endfunction
 
 
-function [FE] = PreEvaluationFireFly(P,miny,maxy,FE)
+function [FE] = PreEvaluationBat(P,miny,maxy,FE)
     
     [Ti,D] = size(P);
     for i = 1:Ti
